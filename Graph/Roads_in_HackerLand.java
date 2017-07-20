@@ -1,32 +1,22 @@
-import java.util.*;
 import java.io.*;
-public class Candies {
+import java.util.*;
+
+public class Roads_in_HackerLand {
     public static void main(String args[]) throws Exception {
         InputReader in = new InputReader(System.in);
         PrintWriter p = new PrintWriter(System.out);
-        int n = in.nextInt();
-        int[] ar = new int[n];
-        for (int i = 0; i < n; i++)
-            ar[i] = in.nextInt();
-        int[] ans1 = new int[n];
-        int[] ans2 = new int[n];
-        Arrays.fill(ans1,1);
-        Arrays.fill(ans2,1);
-
-        for (int i = 0; i < n - 1; i++)
-            if (ar[i + 1] > ar[i])
-                ans1[i + 1] = ans1[i] + 1;
-
-        for(int i=n-1;i>0;i--)
-            if(ar[i-1]>ar[i])
-                ans2[i-1] = ans2[i]+1;
-        long as = 0;
-        for(int i=0;i<n;i++)
-            as+=Math.max(ans1[i], ans2[i]);
-        p.println(as);
+        int v = in.nextInt(), e = in.nextInt(), q = 0;
+        Graph theGra = new Graph(v);
+        while (e-- > 0)
+            theGra.setEdge(in.nextInt(), in.nextInt(), (int) Math.pow(2, in.nextDouble()));
+        for (int i = 1; i < v + 1; i++)
+            for (int j = i + 1; j < v + 1; j++)
+                q += theGra.DJ(i, j);
+        p.println(Integer.toBinaryString(q));
         p.flush();
         p.close();
     }
+
     static class InputReader {
         private InputStream stream;
         private byte[] buf = new byte[1024];
@@ -178,4 +168,63 @@ public class Candies {
             public boolean isSpaceChar(int ch);
         }
     }
+}
+class Graph {
+    Map<Integer, List<Pair>> gra;
+
+    Graph(int vertex) {
+        gra = new HashMap<Integer, List<Pair>>();
+        for (int i = 1; i <= vertex; i++)
+            gra.put(i, new LinkedList<Pair>());
+    }
+
+    void setEdge(int s, int d, int wt) {
+        List<Pair> th = gra.get(s);
+        th.add(new Pair(d, wt));
+        th = gra.get(d);
+        th.add(new Pair(s, wt));
+    }
+
+    int DJ(int s, int d) {
+        int v = gra.size();
+        boolean[] visit = new boolean[v + 1];
+        int[] dist = new int[v + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        PriorityQueue<Pair> q = new PriorityQueue<Pair>(v, Pair.com);
+        q.add(new Pair(s, 0));
+        dist[s] = 0;
+        Pair temp1, temp2;
+        while (!q.isEmpty()) {
+            temp1 = q.poll();
+            if (visit[temp1.ver])
+                continue;
+            else
+                visit[temp1.ver] = true;
+            Iterator it = gra.get(temp1.ver).iterator();
+            while (it.hasNext()) {
+                temp2 = (Pair) it.next();
+                if (dist[temp2.ver] > dist[temp1.ver] + temp2.dis) {
+                    dist[temp2.ver] = dist[temp1.ver] + temp2.dis;
+                    q.add(new Pair(temp2.ver, dist[temp2.ver]));
+                }
+            }
+        }
+        return dist[d];
+    }
+}
+
+class Pair {
+    int ver, dis;
+
+    Pair(int v, int d) {
+        ver = v;
+        dis = d;
+    }
+
+    static Comparator<Pair> com = new Comparator<Pair>() {
+        @Override
+        public int compare(Pair o1, Pair o2) {
+            return Integer.compare(o1.dis, o2.dis);
+        }
+    };
 }
