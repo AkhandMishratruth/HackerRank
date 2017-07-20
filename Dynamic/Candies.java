@@ -1,49 +1,36 @@
 import java.util.*;
 import java.io.*;
-public class Equal {
-    static long[] dp;
+public class Candies {
     public static void main(String args[]) throws Exception {
         InputReader in = new InputReader(System.in);
         PrintWriter p = new PrintWriter(System.out);
-        dp = new long[1500];
-        dp[0]=0;
-        dp[1]=1;
-        dp[2]=1;
-        dp[3]=2;
-        dp[4]=2;
-        dp[5]=1;
-        for(int i=6;i<dp.length;i++)
-            dp[i]=1+Math.min(Math.min(dp[i-1], dp[i-2]), dp[i-5]);
-        int n, t = in.nextInt();
-        int[] ar;
-        while (t-- > 0) {
-            n = in.nextInt();
-            ar = new int[n];
-            for (int i = 0; i < n; i++)
-                ar[i] = in.nextInt();
-            p.println(equ(ar));
+        int n = in.nextInt();
+        int[] ar = new int[n];
+        for (int i = 0; i < n; i++)
+            ar[i] = in.nextInt();
+        int[] ans1 = new int[n];
+        int[] ans2 = new int[n];
+        ans1[0] = 1;
+        for (int i = 0; i < n - 1; i++) {
+            if (ar[i + 1] > ar[i])
+                ans1[i + 1] = ans1[i] + 1;
+            else
+                ans1[i + 1] = 1;
         }
+        ans2[n-1]=1;
+        for(int i=n-1;i>0;i--){
+            if(ar[i-1]>ar[i])
+                ans2[i-1] = ans2[i]+1;
+            else
+                ans2[i-1]=1;
+        }
+        long as = 0;
+        for(int i=0;i<n;i++)
+            as+=Math.max(ans1[i], ans2[2]);
+        p.println(as);
         p.flush();
         p.close();
     }
-
-    static long equ(int[] ar) {
-        int minInd = 0;
-        for (int i = 0; i < ar.length; i++)
-            if (ar[minInd] > ar[i])
-                minInd = i;
-        long ans = Long.MAX_VALUE, cur = 0;
-        for (int i = 0; i < 5; i++) {
-            cur = dp[i];
-            for (int j = 0; j < ar.length; j++) {
-                if(j!=minInd)
-                    cur += dp[ar[j] - ar[minInd] + i];
-            }
-            ans = Math.min(ans, cur);
-        }
-        return ans;
-    }
-
     static class InputReader {
         private InputStream stream;
         private byte[] buf = new byte[1024];
